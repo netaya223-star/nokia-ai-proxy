@@ -1,20 +1,16 @@
 import os
 from fastapi import FastAPI, Query
-import anthropic
+import google.generativeai as genai
 
 app = FastAPI()
 
-CLAUDE_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 @app.get("/ask")
-def ask_ai(prompt: str = Query(..., description="Prompt for Claude")):
+def ask_ai(prompt: str = Query(..., description="Prompt for Gemini")):
     try:
-        response = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=300,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.content[0].text
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
         return f"Error: {str(e)}"
