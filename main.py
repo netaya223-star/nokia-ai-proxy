@@ -1,16 +1,18 @@
 import os
 from fastapi import FastAPI, Query
-import google.generativeai as genai
+from google import genai
 
 app = FastAPI()
 
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 @app.get("/ask")
 def ask_ai(prompt: str = Query(..., description="Prompt for Gemini")):
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
         return response.text
     except Exception as e:
         return f"Error: {str(e)}"
