@@ -11,8 +11,8 @@ def ask_ai(prompt: str = Query(..., description="Prompt for Gemini")):
     if not API_KEY:
         return "Error: GEMINI_API_KEY is missing."
     
-    # שימוש ב-v1 היציב
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    # שימוש ב-gemini-1.5-flash-latest מול v1beta
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
     payload = {
         "contents": [
             {
