@@ -11,7 +11,7 @@ client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
 def ask_ai(prompt: str = Query(..., description="השאלה שנשלחה מהנוקיה")):
     try:
         response = client.messages.create(
-            "model="claude-3-5-haiku-20241022",
+            model="claude-3-5-haiku-20241022",
             max_tokens=300,
             messages=[{"role": "user", "content": prompt}]
         )
