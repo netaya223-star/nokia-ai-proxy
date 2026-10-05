@@ -1,4 +1,4 @@
- import os
+import os
 import time
 import requests
 from fastapi import FastAPI, Query
@@ -8,7 +8,6 @@ app = FastAPI()
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
 
-# חלוקה למקטעים קצרים שמתאימים למסך הקטן של הנוקיה
 def paginate_text(text: str, chunk_size: int = 120):
     if not text:
         return [""]
@@ -18,13 +17,11 @@ def get_gemini_response(prompt: str):
     if not API_KEY:
         return "Error: GEMINI_API_KEY missing."
     
-    # שימוש במודל העדכני שהשרת דורש
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
     
-    # ניסיון חוזר אוטומטי במקרה של עומס רגעי בשרת (503)
     for attempt in range(4):
         try:
             res = requests.post(url, json=payload, timeout=25)
@@ -111,6 +108,7 @@ def home(prompt: str = "", page: int = 0):
     </html>
     """
     return HTMLResponse(content=html_content)
+
 @app.get("/ask")
 def ask_ai(prompt: str = Query(..., description="Prompt for Gemini"), page: int = Query(0, description="Page number")):
     res_text = get_gemini_response(prompt)
