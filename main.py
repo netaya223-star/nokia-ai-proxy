@@ -15,10 +15,14 @@ def home(prompt: str = ""):
         if not API_KEY:
             res_text = "Error: GEMINI_API_KEY missing."
         else:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={API_KEY}"
-            payload = {"contents": [{"parts": [{"text": prompt}]}]}
+            # משתמשים ב-gemini-2.5-flash או 1.5-flash ותומכים בחיפוש באינטרנט
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "tools": [{"googleSearch": {}}]  # מוסיף חיפוש באינטרנט בזמן אמת בחינם!
+            }
             try:
-                res = requests.post(url, json=payload, timeout=15)
+                res = requests.post(url, json=payload, timeout=20)
                 data = res.json()
                 if res.status_code == 200:
                     res_text = data["candidates"][0]["content"]["parts"][0]["text"]
@@ -41,7 +45,7 @@ def home(prompt: str = ""):
         </style>
     </head>
     <body>
-        <h3>Nokia AI Proxy</h3>
+        <h3>Nokia AI Proxy (Search Enabled)</h3>
         <form action="/" method="get">
             <input type="text" name="prompt" placeholder="Ask AI..." value="{prompt}">
             <button type="submit">Send</button>
@@ -56,10 +60,13 @@ def home(prompt: str = ""):
 def ask_ai(prompt: str = Query(..., description="Prompt for Gemini")):
     if not API_KEY:
         return "Error: GEMINI_API_KEY is missing."
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={API_KEY}"
-    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "tools": [{"googleSearch": {}}]
+    }
     try:
-        res = requests.post(url, json=payload, timeout=15)
+        res = requests.post(url, json=payload, timeout=20)
         data = res.json()
         if res.status_code == 200:
             return data["candidates"][0]["content"]["parts"][0]["text"]
