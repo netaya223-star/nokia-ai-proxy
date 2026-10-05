@@ -21,7 +21,8 @@ def home(prompt: str = "", page: int = 0):
         if not API_KEY:
             res_text = "Error: GEMINI_API_KEY missing."
         else:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={API_KEY}"
+            # שימוש במודל יציב שלא סובל מעומסים
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
             payload = {
                 "contents": [{"parts": [{"text": prompt}]}]
             }
@@ -84,7 +85,7 @@ def home(prompt: str = "", page: int = 0):
 def ask_ai(prompt: str = Query(..., description="Prompt for Gemini"), page: int = Query(0, description="Page number")):
     if not API_KEY:
         return "Error: GEMINI_API_KEY is missing."
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
