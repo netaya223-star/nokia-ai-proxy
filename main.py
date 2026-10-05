@@ -15,6 +15,7 @@ def home(prompt: str = ""):
         if not API_KEY:
             res_text = "Error: GEMINI_API_KEY missing."
         else:
+            # שימוש במודל הזמין והמעודכן
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
             payload = {
                 "contents": [{"parts": [{"text": prompt}]}],
