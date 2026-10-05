@@ -1,4 +1,3 @@
-
 import os
 import requests
 from fastapi import FastAPI, Query
@@ -13,27 +12,29 @@ def paginate_text(text: str, chunk_size: int = 250):
         return [""]
     return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
+def get_gemini_response(prompt: str):
+    if not API_KEY:
+        return "Error: GEMINI_API_KEY missing."
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}]
+    }
+    try:
+        res = requests.post(url, json=payload, timeout=25)
+        data = res.json()
+        if res.status_code == 200:
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        else:
+            return f"API Error ({res.status_code}): {data}"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
 @app.get("/", response_class=HTMLResponse)
 def home(prompt: str = "", page: int = 0):
     res_html = ""
     
     if prompt:
-        if not API_KEY:
-            res_text = "Error: GEMINI_API_KEY missing."
-        else:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
-            payload = {
-                "contents": [{"parts": [{"text": prompt}]}]
-            }
-            try:
-                res = requests.post(url, json=payload, timeout=25)
-                data = res.json()
-                if res.status_code == 200:
-                    res_text = data["candidates"][0]["content"]["parts"][0]["text"]
-                else:
-                    res_text = f"API Error ({res.status_code}): {data}"
-            except Exception as e:
-                res_text = f"Error: {str(e)}"
+        res_text = get_gemini_response(prompt)
                 
         pages = paginate_text(res_text)
         if page >= len(pages):
@@ -77,3 +78,13 @@ def home(prompt: str = "", page: int = 0):
     </html>
     """
     return HTMLResponse(content=html_content)
+
+@app.get("/ask")
+def ask_ai(prompt: str = Query(..., description="Prompt for Gemini"), page: int = Query(0, description="Page number")):
+    res_text = get_gemini_response(prompt)
+    pages = paginate_text(res_text)
+    if page >= len(pages):
+        page = len(pages) - 1
+    if page < 0:
+        page = 0
+    return pages[page]
