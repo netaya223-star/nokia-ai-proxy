@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse
@@ -16,23 +17,31 @@ def get_gemini_response(prompt: str):
     if not API_KEY:
         return "Error: GEMINI_API_KEY missing."
     
-    # שימוש במודל המדויק שהתקבל בהודעת השגיאה של גוגל
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
-    try:
-        res = requests.post(url, json=payload, timeout=25)
-        data = res.json()
-        if res.status_code == 200:
-            try:
-                return data["candidates"][0]["content"]["parts"][0]["text"]
-            except (KeyError, IndexError):
-                return f"API Structure Error: {data}"
-        else:
-            return f"API Error ({res.status_code}): {data}"
-    except Exception as e:
-        return f"Error: {str(e)}"
+    
+    # מנסה עד 3 פעמים במקרה של עומס זמני
+    for attempt in range(3):
+        try:
+            res = requests.post(url, json=payload, timeout=25)
+            data = res.json()
+            if res.status_code == 200:
+                try:
+                    return data["candidates"][0]["content"]["parts"][0]["text"]
+                except (KeyError, IndexError):
+                    return f"API Structure Error: {data}"
+            elif res.status_code == 503 and attempt < 2:
+                time.sleep(1.5)
+                continue
+            else:
+                return f"API Error ({res.status_code}): {data}"
+        except Exception as e:
+            if attempt == 2:
+                return f"Error: {str(e)}"
+            time.sleep(1.5)
+    return "Error: Service unavailable."
 
 @app.get("/", response_class=HTMLResponse)
 def home(prompt: str = "", page: int = 0):
