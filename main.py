@@ -15,7 +15,8 @@ def paginate_text(text: str, chunk_size: int = 250):
 def get_gemini_response(prompt: str):
     if not API_KEY:
         return "Error: GEMINI_API_KEY missing."
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
@@ -23,7 +24,10 @@ def get_gemini_response(prompt: str):
         res = requests.post(url, json=payload, timeout=25)
         data = res.json()
         if res.status_code == 200:
-            return data["candidates"][0]["content"]["parts"][0]["text"]
+            try:
+                return data["candidates"][0]["content"]["parts"][0]["text"]
+            except (KeyError, IndexError):
+                return f"API Structure Error: {data}"
         else:
             return f"API Error ({res.status_code}): {data}"
     except Exception as e:
@@ -42,7 +46,7 @@ def home(prompt: str = "", page: int = 0):
         if page < 0:
             page = 0
             
-        current_page_text = pages[page]
+        current_page_text = pages[page] if pages else ""
         
         nav_buttons = ""
         if len(pages) > 1:
@@ -87,4 +91,4 @@ def ask_ai(prompt: str = Query(..., description="Prompt for Gemini"), page: int 
         page = len(pages) - 1
     if page < 0:
         page = 0
-    return pages[page]
+    return pages[page] if pages else ""
