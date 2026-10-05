@@ -69,7 +69,7 @@ def home(prompt: str = "", page: int = 0):
         </style>
     </head>
     <body>
-        <h3>Nokia AI Proxy (Paginated)</h3>
+        <h3>Nokia AI Proxy</h3>
         <form action="/" method="get">
             <input type="text" name="prompt" placeholder="Ask AI..." value="{prompt}">
             <button type="submit">Send</button>
