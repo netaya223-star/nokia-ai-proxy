@@ -15,11 +15,9 @@ def home(prompt: str = ""):
         if not API_KEY:
             res_text = "Error: GEMINI_API_KEY missing."
         else:
-            # שימוש במודל הזמין והמעודכן
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
             payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "tools": [{"googleSearch": {}}]
+                "contents": [{"parts": [{"text": prompt}]}]
             }
             try:
                 res = requests.post(url, json=payload, timeout=20)
@@ -49,7 +47,7 @@ def home(prompt: str = ""):
         </style>
     </head>
     <body>
-        <h3>Nokia AI Proxy (Search Enabled)</h3>
+        <h3>Nokia AI Proxy</h3>
         <form action="/" method="get">
             <input type="text" name="prompt" placeholder="Ask AI..." value="{prompt}">
             <button type="submit">Send</button>
@@ -66,8 +64,7 @@ def ask_ai(prompt: str = Query(..., description="Prompt for Gemini")):
         return "Error: GEMINI_API_KEY is missing."
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
     payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "tools": [{"googleSearch": {}}]
+        "contents": [{"parts": [{"text": prompt}]}]
     }
     try:
         res = requests.post(url, json=payload, timeout=20)
