@@ -101,4 +101,3 @@ def ask_ai(prompt: str = Query(..., description="Prompt for Gemini"), page: int 
         return f"Google API Error ({res.status_code}): {data}"
     except Exception as e:
         return f"Exception: {str(e)}"
-    
