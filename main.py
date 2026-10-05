@@ -15,19 +15,22 @@ def home(prompt: str = ""):
         if not API_KEY:
             res_text = "Error: GEMINI_API_KEY missing."
         else:
-            # משתמשים ב-gemini-2.5-flash או 1.5-flash ותומכים בחיפוש באינטרנט
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
             payload = {
                 "contents": [{"parts": [{"text": prompt}]}],
-                "tools": [{"googleSearch": {}}]  # מוסיף חיפוש באינטרנט בזמן אמת בחינם!
+                "tools": [{"googleSearch": {}}]
             }
             try:
                 res = requests.post(url, json=payload, timeout=20)
-                data = res.json()
+                try:
+                    data = res.json()
+                except:
+                    data = res.text
+                    
                 if res.status_code == 200:
                     res_text = data["candidates"][0]["content"]["parts"][0]["text"]
                 else:
-                    res_text = f"API Error ({res.status_code}): {data}"
+                    res_text = f"Google API Error ({res.status_code}): {data}"
             except Exception as e:
                 res_text = f"Error: {str(e)}"
                 
@@ -67,9 +70,13 @@ def ask_ai(prompt: str = Query(..., description="Prompt for Gemini")):
     }
     try:
         res = requests.post(url, json=payload, timeout=20)
-        data = res.json()
+        try:
+            data = res.json()
+        except:
+            data = res.text
+            
         if res.status_code == 200:
             return data["candidates"][0]["content"]["parts"][0]["text"]
-        return f"API Error ({res.status_code})"
+        return f"Google API Error ({res.status_code}): {data}"
     except Exception as e:
         return f"Exception: {str(e)}"
