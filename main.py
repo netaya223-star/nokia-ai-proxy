@@ -16,7 +16,8 @@ def get_gemini_response(prompt: str):
     if not API_KEY:
         return "Error: GEMINI_API_KEY missing."
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+    # שימוש במודל המדויק שהתקבל בהודעת השגיאה של גוגל
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
